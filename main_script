@@ -1,0 +1,27 @@
+// Filter an image collection by date and region to make a
+// median pixel composite.
+//
+// See also: ClippedComposite, which crops the output image
+// instead of filtering the input collection.
+
+// Filter to only include images intersecting Colorado or Utah.
+var polygon = ee.Geometry.Polygon({
+  coords: [[[-61.58225710219941, -10.410075905359246],
+          [-59.82444460219941, -12.563195724646175],
+          [-58.59397585219941, -16.47617558859679],
+          [-55.56174928969941, -17.568677988933988],
+          [-51.95823366469941, -15.800763381608],
+          [-50.37620241469941, -10.020838559583437],
+          [-61.58225710219941, -9.067435547432256]]],
+  geodesic: false
+});
+
+var collection = ee.ImageCollection('LANDSAT/LE07/C02/T1')
+    .filterDate('2000-04-01', '2000-07-01')
+    .filterBounds(polygon);
+    
+var median = collection.median();
+
+var result = median.select('B3', 'B2', 'B1');
+Map.addLayer(result, {gain: [1.4, 1.4, 1.1]});
+Map.setCenter(-110, 40, 5);
